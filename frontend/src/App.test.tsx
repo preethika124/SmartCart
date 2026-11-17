@@ -1,0 +1,10 @@
+﻿import {describe,it,expect,vi,beforeEach} from 'vitest';
+import {render,screen,waitFor} from '@testing-library/react';
+import {MemoryRouter} from 'react-router-dom';
+import App from './App';
+const {getMock,postMock,deleteMock,patchMock}=vi.hoisted(()=>({getMock:vi.fn(),postMock:vi.fn(),deleteMock:vi.fn(),patchMock:vi.fn()}));
+vi.mock('./api',()=>({api:{get:getMock,post:postMock,delete:deleteMock,patch:patchMock},apiData:async(p:Promise<any>)=>(await p).data.data}));
+const product={id:'p1',sku:'SC-TEST-1',name:'Test Monitor',brand:'Example',description:'A catalogue product.',price:10000,originalPrice:12000,rating:4.5,categoryId:'c1',category:{id:'c1',name:'Monitors'},inventory:{quantity:5,reserved:0},images:[{url:'https://example.test/monitor.jpg'}],specifications:[{name:'Panel',value:'IPS'}],_count:{reviews:2}};
+const envelope=(data:any)=>Promise.resolve({data:{success:true,data,error:null,requestId:'test'}});
+beforeEach(()=>{vi.clearAllMocks();getMock.mockImplementation((path:string)=>path==='/me'?Promise.reject(new Error('Unauthenticated')):path==='/categories'?envelope([{id:'c1',name:'Monitors',_count:{products:1}}]):path==='/products/search'?envelope({items:[product],nextCursor:null}):envelope({items:[]}));});
+describe('SmartCart storefront',()=>{it('renders live categories and products returned by the API',async()=>{render(<MemoryRouter><App/></MemoryRouter>);expect(await screen.findByRole('heading',{name:/good things make great days/i})).toBeInTheDocument();expect((await screen.findAllByText('Test Monitor')).length).toBeGreaterThan(0);expect(screen.getAllByText('Monitors').length).toBeGreaterThan(0);await waitFor(()=>expect(getMock).toHaveBeenCalledWith('/products/search',expect.anything()));});});

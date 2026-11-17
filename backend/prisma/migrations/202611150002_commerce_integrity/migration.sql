@@ -1,0 +1,17 @@
+ALTER TABLE "User" ADD COLUMN "phone" TEXT;
+ALTER TABLE "User" ADD COLUMN "preferredCategory" TEXT;
+ALTER TABLE "Review" ADD CONSTRAINT "Review_productId_userId_key" UNIQUE ("productId", "userId");
+CREATE INDEX "Review_productId_createdAt_idx" ON "Review"("productId", "createdAt");
+ALTER TABLE "Order" ADD COLUMN "requestHash" TEXT NOT NULL DEFAULT '';
+ALTER TABLE "Order" ADD COLUMN "addressId" TEXT;
+ALTER TABLE "Order" ADD COLUMN "deliveryAddress" JSONB;
+ALTER TABLE "Order" ADD CONSTRAINT "Order_addressId_fkey" FOREIGN KEY ("addressId") REFERENCES "Address"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Inventory" ADD CONSTRAINT "Inventory_quantity_nonnegative_check" CHECK ("quantity" >= 0);
+ALTER TABLE "Inventory" ADD CONSTRAINT "Inventory_reserved_nonnegative_check" CHECK ("reserved" >= 0);
+ALTER TABLE "Inventory" ADD CONSTRAINT "Inventory_reserved_lte_quantity_check" CHECK ("reserved" <= "quantity");
+ALTER TABLE "Product" ADD CONSTRAINT "Product_price_check" CHECK ("price" >= 0 AND "originalPrice" >= "price");
+ALTER TABLE "Coupon" ADD CONSTRAINT "Coupon_discountPercent_check" CHECK ("discountPercent" BETWEEN 1 AND 100);
+ALTER TABLE "Coupon" ADD CONSTRAINT "Coupon_uses_check" CHECK ("uses" >= 0);
+ALTER TABLE "OrderItem" ADD CONSTRAINT "OrderItem_quantity_check" CHECK ("quantity" > 0);
+ALTER TABLE "Review" ADD CONSTRAINT "Review_rating_check" CHECK ("rating" BETWEEN 1 AND 5);
+ALTER TABLE "CartItem" ADD CONSTRAINT "CartItem_quantity_check" CHECK ("quantity" BETWEEN 1 AND 10);

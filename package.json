@@ -1,0 +1,1 @@
+{"name":"smartcart","private":true,"workspaces":["frontend","backend","tests"],"scripts":{"dev":"concurrently -k -n api,web \"npm run dev -w backend\" \"npm run dev -w frontend\"","build":"npm run build -w backend && npm run build -w frontend","test":"npm run test -w frontend && npm run test:e2e -w tests"},"devDependencies":{"concurrently":"^9.1.2"}}
